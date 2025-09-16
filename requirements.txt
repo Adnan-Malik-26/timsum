@@ -1,0 +1,5 @@
+# Timsum dependencies
+# Rich library for terminal formatting
+rich>=13.5.2
+
+# Recommended Python version: 3.10+
