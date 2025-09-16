@@ -76,12 +76,14 @@ def get_tags():
     tags = []
     for line in lines:
         if line.strip():
-            # Tag is the first column (before two spaces or before " - ")
-            tag = (
-                line.split()[0]
-                if " " not in line.split()[0]
-                else line.split(" - ")[0].strip()
-            )
+            # Extract tag name before the count (separated by multiple spaces)
+            # Split on multiple spaces and take everything before the last part (which is the count)
+            parts = line.split()
+            if len(parts) >= 2:
+                # Join all parts except the last one (count)
+                tag = " ".join(parts[:-1])
+            else:
+                tag = parts[0] if parts else ""
             tags.append(normalize_tag(tag))
     return tags
 
