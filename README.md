@@ -1,98 +1,122 @@
-# Timsum
-[![Python Version](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
-[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-**TimSum** is a Python script that generates beautiful, colorized summaries of your Timewarrior time tracking data.
-It provides rich formatting, customizable themes, and flexible time ranges, all powered by Python and [Rich](https://github.com/Textualize/rich).
+<div align="center">
+
+# ⏰ TimSum
+
+*Beautiful Timewarrior summaries in your terminal*
+
+[![Python Version](https://img.shields.io/badge/python-3.10%2B-blue?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![License](https://img.shields.io/badge/license-MIT-green?style=for-the-badge)](LICENSE)
+[![Rich](https://img.shields.io/badge/powered%20by-Rich-ff69b4?style=for-the-badge)](https://github.com/Textualize/rich)
+
+**Transform your time tracking data into stunning, colorful terminal displays**
+
+[Installation](#-installation) • [Usage](#-usage) • [Themes](#-custom-themes) • [Contributing](#-contributing)
 
 ---
 
-## Features
+</div>
 
-- 🚀 Fast, terminal-friendly summary output
-- 🎨 Multiple color themes (e.g., `mocha`, `latte`, `frappe`) with custom theme support
-- ⏱ Flexible time ranges (`:day`, `:week`, `:month`, `:all`)
-- 💻 Isolated Python environment with virtual environment support
-- 📦 Easy user-level installation without root
-- 🎯 Consistent tag coloring across summaries
+## ✨ Features
+
+<table>
+<tr>
+<td>
+
+🚀 **Lightning Fast**  
+Terminal-native performance with instant summaries
+
+🎨 **Beautiful Themes**  
+Catppuccin palettes + unlimited custom themes
+
+⏱ **Flexible Ranges**  
+From daily snapshots to complete history
+
+</td>
+<td>
+
+💻 **Clean Installation**  
+Isolated virtual environment, zero conflicts
+
+🎯 **Consistent Colors**  
+Tags maintain colors across all views
+
+📊 **Rich Formatting**  
+Elegant tables powered by Rich library
+
+</td>
+</tr>
+</table>
 
 ---
 
-## Table of Contents
+## 🚀 Installation
 
-- [Installation](#installation)
-  - [System-Wide](#system-wide-installation)
-  - [User / Virtual Environment](#user--virtual-environment-installation)
-- [Usage](#usage)
-- [Configuration](#configuration)
-- [Custom Themes](#custom-themes)
-- [Development](#development)
-- [Contributing](#contributing)
-- [License](#license)
-- [Acknowledgements](#acknowledgements)
+### 🏠 Local Installation *(Recommended)*
 
----
-
-## Installation
-
-### User / Virtual Environment Installation (Recommended)
-
-This method installs `timsum` in a local virtual environment, avoiding conflicts with system Python packages.
+Perfect for personal use - installs in your home directory without touching system files.
 
 ```bash
-# Clone the repository
 git clone https://github.com/yourusername/timsum.git
 cd timsum
-
-# Run the installation script
 bash install.sh
 ```
 
-The installation script will ask you to choose between local or system-wide installation. For most users, local installation is recommended.
+> 💡 **Pro tip**: The installer will guide you through local vs system-wide options
 
-After installation, ensure the install directory is in your PATH:
+### 🌐 System-Wide Installation
+
+For system administrators or multi-user setups.
+
+```bash
+git clone https://github.com/yourusername/timsum.git
+cd timsum
+sudo bash install.sh
+```
+
+### 📝 PATH Setup
+
+Add to your shell configuration (`~/.bashrc` or `~/.zshrc`):
+
 ```bash
 export PATH="$HOME/.local/bin:$PATH"
 ```
 
-You can add this line to ~/.bashrc or ~/.zshrc to persist it.
+---
 
-### System-Wide Installation (Optional)
+## 🎮 Usage
 
-Requires root privileges.
-
-```bash
-sudo bash install.sh
-```
-
-This will install timsum to /usr/local/bin and install required Python packages system-wide.
-
-## Usage
+### Quick Start
 
 ```bash
-timsum [OPTIONS]
-```
-
-### Examples
-
-```bash
+# Weekly summary with Mocha theme
 timsum --theme mocha --range :week
-timsum --theme latte --range :month
-timsum --theme kanagawa --range :all
-timsum --theme frappe --range :day
+
+# Monthly overview with custom theme
+timsum --theme kanagawa --range :month
+
+# Complete history with Latte theme
+timsum --theme latte --range :all
 ```
 
-### Options
+### 🎛 Command Options
 
-- `--theme <theme>`: Choose a theme for output (mocha, latte, frappe, macchiato, or custom theme name)
-- `--range <range>`: Select a time range (`:day`, `:week`, `:month`, `:all`)
+| Option | Description | Examples |
+|--------|-------------|----------|
+| `--theme` | Color theme | `mocha`, `latte`, `frappe`, `macchiato`, `kanagawa` |
+| `--range` | Time period | `:day`, `:week`, `:month`, `:all` |
 
-## Configuration
+---
 
-TimSum supports configuration files for setting default options:
+## ⚙️ Configuration
 
-**Configuration file location:**
-- Local installation: `~/.config/timsum/timsum.conf`
-- System-wide installation: `/etc/timsum/timsum.conf`
+### 📄 Config File
+
+TimSum reads configuration from:
+
+| Installation | Config Path |
+|--------------|-------------|
+| **Local** | `~/.config/timsum/timsum.conf` |
+| **System** | `/etc/timsum/timsum.conf` |
 
 **Example configuration:**
 ```ini
@@ -101,99 +125,179 @@ theme = mocha
 range = :week
 ```
 
-Command-line arguments will override configuration file settings.
+> 🔄 **Override**: Command-line arguments always take precedence
 
-## Custom Themes
+---
 
-TimSum supports custom themes in addition to the built-in Catppuccin themes. You can create your own themes by adding JSON files to the themes directory.
+## 🎨 Custom Themes
 
-**Theme directory location:**
-- Local installation: `~/.config/timsum/themes/`
-- System-wide installation: `/etc/timsum/themes/`
+### 🎪 Built-in Themes
 
-**Creating a custom theme:**
+<table>
+<tr>
+<td align="center">
 
-1. Create a JSON file named `{theme-name}.json` in the themes directory
-2. Define the four required color properties:
+**🌙 Mocha**  
+Dark & cozy
+
+</td>
+<td align="center">
+
+**☕ Macchiato**  
+Warm browns
+
+</td>
+<td align="center">
+
+**🥐 Frappe**  
+Cool blues
+
+</td>
+<td align="center">
+
+**🥛 Latte**  
+Light & clean
+
+</td>
+</tr>
+</table>
+
+### 🎭 Create Your Own
+
+**1. Choose your theme directory:**
+
+| Installation | Theme Directory |
+|--------------|-----------------|
+| **Local** | `~/.config/timsum/themes/` |
+| **System** | `/etc/timsum/themes/` |
+
+**2. Create a JSON theme file:**
 
 ```json
 {
-  "base": "#1f1f28",
-  "text": "#dcd7ba", 
-  "accent": "#7e9cd8",
-  "highlight": "#ff9e3b"
+  "base": "#1f1f28",      // Background color
+  "text": "#dcd7ba",      // Primary text
+  "accent": "#7e9cd8",    // Headers & totals  
+  "highlight": "#ff9e3b"  // Emphasis & highlights
 }
 ```
 
-**Example custom theme (Kanagawa):**
-```bash
-# Create the theme file
-echo '{
-  "base": "#1f1f28",
-  "text": "#dcd7ba",
-  "accent": "#7e9cd8", 
-  "highlight": "#ff9e3b"
-}' > ~/.config/timsum/themes/kanagawa.json
+**3. Save and use:**
 
-# Use your custom theme
-timsum --theme kanagawa --range :week
+```bash
+# Save as ~/.config/timsum/themes/mytheme.json
+timsum --theme mytheme --range :week
 ```
 
-The installer automatically creates a sample Kanagawa theme to get you started.
-
-## Development
-
-### Prerequisites
-
-- Python 3.10+
-- `pip` package manager
-
-### Setup for Development
+### 🌸 Example: Kanagawa Theme
 
 ```bash
-# Clone the repo
+# Create the theme
+cat > ~/.config/timsum/themes/kanagawa.json << 'EOF'
+{
+  "base": "#1f1f28",
+  "text": "#dcd7ba",
+  "accent": "#7e9cd8",
+  "highlight": "#ff9e3b"
+}
+EOF
+
+# Use it immediately
+timsum --theme kanagawa --range :month
+```
+
+---
+
+## 🛠 Development
+
+### 🏗 Setup
+
+```bash
 git clone https://github.com/yourusername/timsum.git
 cd timsum
 
-# Create virtual environment
+# Create development environment
 python3 -m venv venv
 source venv/bin/activate
-
-# Install dependencies
 pip install -r requirements.txt
+
+# Run locally
+python timsum.py --theme mocha --range :week
 ```
 
-#### Run Locally
+### 🧪 Testing
 
 ```bash
-python timsum.py --theme mocha/frappe/macchiato/latte --range :all/:week/:day/:month
+# Test with different themes
+python timsum.py --theme latte --range :day
+python timsum.py --theme frappe --range :month
+python timsum.py --theme macchiato --range :all
 ```
 
-### Contributions 
+---
 
-Contributions are welcome! Please follow these steps:
+## 🤝 Contributing
 
-1. Fork the repository.
-2. Create a feature branch: `git checkout -b feature/my-feature`
-3. Commit your changes: `git commit -m "Add my feature"`
-4. Push to your branch: `git push origin feature/my-feature`
-5. Open a Pull Request.
+We love contributions! Here's how to get started:
 
-Please adhere to [PEP 8](https://peps.python.org/pep-0008/) for Python code style.
+### 🐛 Found a Bug?
+[Open an issue](https://github.com/yourusername/timsum/issues) with details and steps to reproduce.
 
-## License
+### 💡 Have an Idea?
+[Start a discussion](https://github.com/yourusername/timsum/discussions) about new features.
 
-This project is licensed under the MIT License. See the LICENSE file for details.
+### 🔧 Ready to Code?
 
-## Acknowledgements
+1. **Fork** the repository
+2. **Create** a feature branch: `git checkout -b feature/amazing-feature`
+3. **Commit** your changes: `git commit -m 'Add amazing feature'`
+4. **Push** to your branch: `git push origin feature/amazing-feature`
+5. **Open** a Pull Request
 
-- [Rich](https://github.com/Textualize/rich) for beautiful terminal output
-- [Catppuccin](https://github.com/catppuccin/catppuccin) color palette for built-in themes
-- Inspired by terminal productivity tools like `tldr` and `glances`.
+> 📋 **Style Guide**: We follow [PEP 8](https://peps.python.org/pep-0008/) for Python code
 
-## Roadmap
+---
 
-- [x] ~~Config file support (~/.timsum/timsum.conf)~~
-- [x] ~~Additional themes and color schemes~~
-- [ ] Export summaries to CSV or JSON
-- [ ] Interactive TUI mode
+## 📚 Roadmap
+
+### ✅ Completed
+- [x] Config file support
+- [x] Custom theme system  
+- [x] Consistent tag coloring
+- [x] Virtual environment installation
+
+### 🚧 In Progress
+- [ ] 📊 Export to CSV/JSON
+- [ ] 🖥 Interactive TUI mode
+
+---
+
+## 📜 License
+
+Released under the **MIT License** - see [LICENSE](LICENSE) for details.
+
+---
+
+## 🙏 Acknowledgements
+
+<div align="center">
+
+**Built with amazing open-source projects**
+
+[![Rich](https://img.shields.io/badge/Rich-Terminal%20Formatting-ff69b4?style=flat-square)](https://github.com/Textualize/rich)
+[![Catppuccin](https://img.shields.io/badge/Catppuccin-Color%20Palettes-fab387?style=flat-square)](https://github.com/catppuccin/catppuccin)
+[![Timewarrior](https://img.shields.io/badge/Timewarrior-Time%20Tracking-89b4fa?style=flat-square)](https://timewarrior.net/)
+
+*Inspired by terminal productivity tools like `tldr`, `glances`, and `bat`*
+
+</div>
+
+---
+
+<div align="center">
+
+**Made with ❤️ for the terminal**
+
+[⬆ Back to top](#-timsum)
+
+</div>
