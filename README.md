@@ -132,35 +132,7 @@ range = :week
 ## 🎨 Custom Themes
 
 ### 🎪 Built-in Themes
-
-<table>
-<tr>
-<td align="center">
-
-**🌙 Mocha**  
-Dark & cozy
-
-</td>
-<td align="center">
-
-**☕ Macchiato**  
-Warm browns
-
-</td>
-<td align="center">
-
-**🥐 Frappe**  
-Cool blues
-
-</td>
-<td align="center">
-
-**🥛 Latte**  
-Light & clean
-
-</td>
-</tr>
-</table>
+> There are 22 Built-in themes but you can add your own. (See Below)
 
 ### 🎭 Create Your Own
 
