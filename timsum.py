@@ -8,6 +8,49 @@ import hashlib
 from rich.console import Console
 from rich.table import Table
 from rich.style import Style
+import os
+import configparser
+
+CONFIG_PATH = os.path.expanduser("~/.config/timsum/timsum.conf")
+THEMES_DIR = os.path.expanduser("~/.config/timsum/themes")
+
+
+def load_config():
+    """Load timsum.conf file (INI format)."""
+    config = configparser.ConfigParser()
+    if os.path.exists(CONFIG_PATH):
+        config.read(CONFIG_PATH)
+    return config
+
+
+def load_theme(theme_name):
+    """Load theme either from built-ins or JSON file."""
+    # Check built-in
+    if theme_name in CATPPUCCIN:
+        return CATPPUCCIN[theme_name]
+
+    # Check custom theme JSON
+    theme_file = os.path.join(THEMES_DIR, f"{theme_name}.json")
+    if os.path.exists(theme_file):
+        try:
+            with open(theme_file, "r") as f:
+                theme_data = json.load(f)
+                # Validate that the theme has required keys
+                required_keys = ["base", "text", "accent", "highlight"]
+                if all(key in theme_data for key in required_keys):
+                    return theme_data
+                else:
+                    missing_keys = [
+                        key for key in required_keys if key not in theme_data
+                    ]
+                    raise ValueError(
+                        f"Theme '{theme_name}' is missing required keys: {missing_keys}"
+                    )
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Invalid JSON in theme file '{theme_file}': {e}")
+
+    raise ValueError(f"Theme '{theme_name}' not found in built-ins or {THEMES_DIR}")
+
 
 # Catppuccin palettes (for table styling)
 CATPPUCCIN = {
@@ -88,14 +131,23 @@ def get_tags():
     return tags
 
 
-def assign_tag_colors(tags):
-    """Assign a persistent unique color to each tag using hashing."""
+def assign_tag_colors(tags, theme):
+    """Assign consistent colors to tags using hashing for deterministic color assignment."""
     color_map = {}
+
+    # Use a combination of theme colors and TAG_COLORS for variety
+    available_colors = TAG_COLORS + [theme["accent"], theme["highlight"], theme["text"]]
+
     for tag in tags + ["(UNTAGGED)"]:
         norm = normalize_tag(tag)
+        # Use hash for consistent color assignment
         h = int(hashlib.sha256(norm.encode()).hexdigest(), 16)
-        color_map[norm] = TAG_COLORS[h % len(TAG_COLORS)]
+        color_map[norm] = available_colors[h % len(available_colors)]
+
     return color_map
+
+
+from datetime import datetime, timezone
 
 
 def parse_intervals(data):
@@ -105,7 +157,15 @@ def parse_intervals(data):
 
     for entry in data:
         start = datetime.fromisoformat(entry["start"])
-        end = datetime.fromisoformat(entry.get("end", datetime.now().isoformat()))
+        if "end" in entry:
+            end = datetime.fromisoformat(entry["end"])
+        else:
+            # match tz awareness with `start`
+            if start.tzinfo is not None:
+                end = datetime.now(start.tzinfo)
+            else:
+                end = datetime.now()
+
         duration = (end - start).total_seconds() / 3600
         day_key = start.date().isoformat()
 
@@ -119,59 +179,39 @@ def parse_intervals(data):
     return dict(sorted(per_day.items())), dict(sorted(tag_totals.items()))
 
 
-def print_daily_table(per_day, theme_name, tag_colors, console):
-    theme = CATPPUCCIN[theme_name]
+def print_daily_table(per_day, theme, tag_colors, console):
+    table = Table(show_header=True, header_style="bold " + theme["accent"])
+    table.add_column("Date", style=theme["text"])
+    table.add_column("Total Hours", style=theme["text"], justify="right")
+    table.add_column("Tags", style=theme["text"])
 
-    table = Table(
-        title="⏳ Daily Time Summary with Colored Tags",
-        title_style=Style(color=theme["highlight"], bold=True),
-        header_style=Style(color=theme["accent"], bold=True),
-        border_style=theme["accent"],
-    )
-
-    table.add_column("📅 Date", justify="center", style=theme["text"])
-    table.add_column("⌛ Hours", justify="center", style=theme["text"])
-    table.add_column("🏷️ Tags (hours)", justify="left", style=theme["text"])
-
-    total_hours = 0
-    for day, info in per_day.items():
-        tag_entries = []
-        for tag, hours in info["tags"].items():
-            color = tag_colors.get(tag, theme["text"])
-            tag_entries.append(f"[{color}]{tag}[/{color}] [{hours:.2f}h]")
-        tags_str = ", ".join(tag_entries)
-
-        table.add_row(day, f"{info['hours']:.2f}", tags_str)
-        total_hours += info["hours"]
+    for day, data in per_day.items():
+        tag_texts = []
+        for tag, hours in data["tags"].items():
+            # Use pre-computed tag colors
+            color = tag_colors.get(normalize_tag(tag), theme["text"])
+            tag_texts.append(f"[{color}]{tag} {hours:.1f}h[/{color}]")
+        table.add_row(
+            f"[{theme['text']}]{day}[/{theme['text']}]",
+            f"[{theme['accent']}]{data['hours']:.1f}[/{theme['accent']}]",
+            " ".join(tag_texts),
+        )
 
     console.print(table)
-    console.print(
-        f"[bold {theme['highlight']}]✨ Total: {total_hours:.2f} h ✨[/bold {theme['highlight']}]"
-    )
 
 
-def print_tag_totals(tag_totals, theme_name, tag_colors, console):
-    theme = CATPPUCCIN[theme_name]
+def print_tag_totals(tag_totals, theme, tag_colors, console):
+    table = Table(show_header=True, header_style="bold " + theme["accent"])
+    table.add_column("Tag", style=theme["text"])
+    table.add_column("Total Hours", style=theme["text"], justify="right")
 
-    total_hours = sum(tag_totals.values())
-
-    table = Table(
-        title="🏷️ Total Hours by Tag",
-        title_style=Style(color=theme["highlight"], bold=True),
-        header_style=Style(color=theme["accent"], bold=True),
-        border_style=theme["accent"],
-    )
-
-    table.add_column("Tag", justify="center", style=theme["text"])
-    table.add_column("Hours", justify="center", style=theme["text"])
-    table.add_column("% of Total", justify="center", style=theme["text"])
-
-    for tag, hours in sorted(tag_totals.items(), key=lambda x: x[1], reverse=True):
-        if hours <= 0.0:  # hide empty tags
-            continue
-        color = tag_colors.get(tag, theme["text"])
-        percent = (hours / total_hours * 100) if total_hours > 0 else 0
-        table.add_row(f"[{color}]{tag}[/{color}]", f"{hours:.2f}", f"{percent:.1f}%")
+    for tag, hours in tag_totals.items():
+        # Use pre-computed tag colors
+        color = tag_colors.get(normalize_tag(tag), theme["text"])
+        table.add_row(
+            f"[{color}]{tag}[/{color}]",
+            f"[{theme['accent']}]{hours:.1f}[/{theme['accent']}]",
+        )
 
     console.print(table)
 
@@ -182,26 +222,33 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--theme",
-        choices=CATPPUCCIN.keys(),
-        default="mocha",
-        help="Choose Catppuccin theme (mocha, macchiato, frappe, latte)",
+        help="Choose theme (built-in: mocha, macchiato, frappe, latte OR custom from ~/.config/timsum/themes/)",
     )
     parser.add_argument(
         "--range",
-        default=":week",
-        help="Timewarrior range (default: :week, e.g. :day, :month, YYYY-MM-DD - YYYY-MM-DD)",
+        help="Timewarrior range (e.g. :day, :week, :month, YYYY-MM-DD - YYYY-MM-DD)",
     )
     args = parser.parse_args()
+
+    # Load config
+    config = load_config()
+
+    # Pick theme: CLI > config > default
+    theme_name = args.theme or config.get("timsum", "theme", fallback="mocha")
+    theme = load_theme(theme_name)
+
+    # Pick range: CLI > config > default
+    range_spec = args.range or config.get("timsum", "range", fallback=":week")
 
     console = Console()
 
     # Collect data
-    data = get_timew_data(args.range)
+    data = get_timew_data(range_spec)
     tags = get_tags()
-    tag_colors = assign_tag_colors(tags)
+    tag_colors = assign_tag_colors(tags, theme)  # Fixed: added theme parameter
 
     per_day, tag_totals = parse_intervals(data)
 
     # Print outputs
-    print_daily_table(per_day, args.theme, tag_colors, console)
-    print_tag_totals(tag_totals, args.theme, tag_colors, console)
+    print_daily_table(per_day, theme, tag_colors, console)
+    print_tag_totals(tag_totals, theme, tag_colors, console)
